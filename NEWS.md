@@ -1,5 +1,6 @@
 0.23.0 (2018-XX-XX)
 * `CDB_QuantileBins` now ignores NULLs automatically.
+* Travis: Test with PostgreSQL 9.5 and 10.
 
 0.23.2 (2018-07-19)
 * Fix `CDB_QueryTablesText` with parenthesized queries (#335)
