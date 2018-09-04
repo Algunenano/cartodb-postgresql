@@ -14,5 +14,7 @@ AS $$
     percentile_disc(Array(SELECT generate_series(1, breaks) / breaks::numeric))
     WITHIN GROUP (ORDER BY x ASC) AS p
   FROM
-    unnest(in_array) AS x;
+    unnest(array_remove(in_array, NULL)) AS x;
 $$ language SQL IMMUTABLE STRICT PARALLEL SAFE;
+
+
