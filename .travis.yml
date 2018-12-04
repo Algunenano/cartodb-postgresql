@@ -13,7 +13,9 @@ env:
 
 before_install:
   - sudo service postgresql stop;
-  - sudo apt-get install -y --allow-unauthenticated --no-install-recommends --no-install-suggests postgresql-$POSTGRESQL_VERSION postgresql-client-$POSTGRESQL_VERSION postgresql-server-dev-$POSTGRESQL_VERSION postgresql-$POSTGRESQL_VERSION-postgis-$POSTGIS_VERSION postgresql-plpython-$POSTGRESQL_VERSION
+  - sudo apt-get remove postgresql* -y
+  - sudo apt list postgis* -a
+  - sudo apt-get install -y --allow-unauthenticated --no-install-recommends --no-install-suggests postgresql-$POSTGRESQL_VERSION postgresql-client-$POSTGRESQL_VERSION postgresql-server-dev-$POSTGRESQL_VERSION postgresql-common postgresql-$POSTGRESQL_VERSION-postgis-$POSTGIS_VERSION postgresql-plpython-$POSTGRESQL_VERSION
   - echo -e "# TYPE  DATABASE        USER            ADDRESS                 METHOD \nlocal   all             postgres                                trust\nlocal   all             all                                     trust\nhost    all             all             127.0.0.1/32            trust"  | sudo tee /etc/postgresql/$POSTGRESQL_VERSION/main/pg_hba.conf
   - export PGPORT=`grep ^port /etc/postgresql/$POSTGRESQL_VERSION/main/postgresql.conf | awk '{print $3}'`
   - sudo service postgresql restart $POSTGRESQL_VERSION;
