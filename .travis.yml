@@ -14,9 +14,9 @@ env:
     - POSTGRESQL_VERSION="11"
 
 before_install:
-  - sudo service postgresql stop;
+  - sudo service postgresql stop
   - sudo apt-get remove postgresql* -y
-  - sudo apt-get install -y --allow-unauthenticated --no-install-recommends --no-install-suggests postgresql-$POSTGRESQL_VERSION postgresql-client-$POSTGRESQL_VERSION postgresql-server-dev-$POSTGRESQL_VERSION postgresql-common postgresql-$POSTGRESQL_VERSION-postgis* postgis postgresql-plpython-$POSTGRESQL_VERSION
+  - sudo apt-get install -y --allow-unauthenticated postgresql-$POSTGRESQL_VERSION postgresql-client-$POSTGRESQL_VERSION postgresql-server-dev-$POSTGRESQL_VERSION postgresql-common postgresql-$POSTGRESQL_VERSION-postgis postgis postgresql-plpython-$POSTGRESQL_VERSION
   - echo -e "# TYPE  DATABASE        USER            ADDRESS                 METHOD \nlocal   all             postgres                                trust\nlocal   all             all                                     trust\nhost    all             all             127.0.0.1/32            trust"  | sudo tee /etc/postgresql/$POSTGRESQL_VERSION/main/pg_hba.conf
   - sudo service postgresql restart $POSTGRESQL_VERSION || sudo journalctl -xe
 
