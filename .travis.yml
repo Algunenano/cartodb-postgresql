@@ -6,6 +6,8 @@ env:
   global:
     - PGUSER=postgres
     - PGDATABASE=postgres
+    - PGOPTIONS='-c client_min_messages=NOTICE'
+
   matrix:
     - POSTGRESQL_VERSION="9.5"
     - POSTGRESQL_VERSION="10"
@@ -21,5 +23,9 @@ before_install:
 script:
   - make
   - sudo make install
-  - PGOPTIONS='-c client_min_messages=NOTICE' PGUSER=postgres make installcheck ||
-    { cat regression.diffs; false; }
+  - make installcheck
+
+after_failure:
+  - pg_lsclusters
+  - cat regression.out
+  - cat regression.diffs
