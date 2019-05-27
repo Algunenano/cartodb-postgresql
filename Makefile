@@ -123,7 +123,6 @@ REGRESS = test_setup $(REGRESS_LEGACY)
 
 PG_CONFIG = pg_config
 PGXS := $(shell $(PG_CONFIG) --pgxs)
-PG_PARALLEL := $(shell $(PG_CONFIG) --version | ($(AWK) '{$$2*=1000; if ($$2 >= 9600) print 1; else print 0;}' 2> /dev/null || echo 0))
 include $(PGXS)
 
 $(EXTENSION)--$(EXTVERSION).sql: $(CDBSCRIPTS) cartodb_version.sql Makefile
@@ -153,9 +152,6 @@ $(EXTENSION)--$(EXTVERSION)--$(EXTVERSION)next.sql: $(EXTENSION)--$(EXTVERSION).
 
 $(EXTENSION).control: $(EXTENSION).control.in Makefile
 	$(SED) -e 's/@@VERSION@@/$(EXTVERSION)/' $< > $@
-ifeq ($(PG_PARALLEL), 0)
-	echo -e "\033[0;31mExtension created without PARALLEL support\033[0m"
-endif
 
 cartodb_version.sql: cartodb_version.sql.in Makefile $(GITDIR)/index
 	$(SED) -e 's/@@VERSION@@/$(EXTVERSION)/' $< > $@

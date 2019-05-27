@@ -10,7 +10,6 @@
 DATABASE=test_organizations
 CMD=psql
 SED=sed
-PG_PARALLEL=$(pg_config --version | awk '{$2*=1000; if ($2 >= 9600) print 1; else print 0;}' 2> /dev/null || echo 0)
 
 OK=0
 PARTIALOK=0
@@ -26,15 +25,7 @@ function clear_partial_result() {
 }
 
 function load_sql_file() {
-    if [[ $PG_PARALLEL -eq 0 ]]
-    then
-        tmp_file=/tmp/$(basename $1)_no_parallel
-        ${SED} $1 -e 's/PARALLEL \= [A-Z]*/''/g' -e 's/PARALLEL [A-Z]*/''/g' > $tmp_file
-        ${CMD} -d ${DATABASE} -f $tmp_file
-        rm $tmp_file
-    else
-        ${CMD} -d ${DATABASE} -f $1
-    fi
+    ${CMD} -d ${DATABASE} -f $1
 }
 
 
