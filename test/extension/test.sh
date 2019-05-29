@@ -133,6 +133,7 @@ function create_role_and_schema() {
     sql "GRANT CONNECT ON DATABASE \"${DATABASE}\" TO ${ROLE};"
     sql "CREATE SCHEMA ${ROLE} AUTHORIZATION ${ROLE};"
     sql "SELECT cartodb.CDB_Organization_Create_Member('${ROLE}');"
+    sql "ALTER ROLE ${ROLE} SET search_path TO ${ROLE},cartodb,public;"
 }
 
 
@@ -204,6 +205,7 @@ function setup_database() {
     load_sql_file_schema scripts-available/CDB_ColumnNames.sql cartodb
     load_sql_file_schema scripts-available/CDB_ColumnType.sql cartodb
     load_sql_file_schema scripts-available/CDB_AnalysisCatalog.sql cartodb
+    
 }
 
 function setup() {
@@ -322,6 +324,7 @@ function test_quota_for_each_user() {
 }
 
 function test_cdb_tablemetadatatouch() {
+    sql "SET search_path=test_schema,public,cartodb;"
     sql "CREATE TABLE touch_example (a int)"
     sql postgres "SELECT updated_at FROM CDB_TableMetadata WHERE tabname = 'touch_example'::regclass;" should ''
     sql "SELECT CDB_TableMetadataTouch('touch_example');"
