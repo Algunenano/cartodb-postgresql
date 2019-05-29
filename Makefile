@@ -128,18 +128,10 @@ include $(PGXS)
 $(EXTENSION)--$(EXTVERSION).sql: $(CDBSCRIPTS) cartodb_version.sql Makefile
 	echo '\echo Use "CREATE EXTENSION $(EXTENSION)" to load this file. \quit' > $@
 	cat $(CDBSCRIPTS) | \
-	$(SED) -e 's/public\./cartodb./g' \
-		-e 's/:DATABASE_USERNAME/cdb_org_admin/g' \
-		-e "s/''public''/''cartodb''/g" >> $@
+	$(SED) 	-e 's/@extschema@/cartodb/g' \
+		-e "s/@postgisschema@/public/g" >> $@
 	echo "GRANT USAGE ON SCHEMA cartodb TO public;" >> $@
 	cat cartodb_version.sql >> $@
-ifeq ($(PG_PARALLEL), 0)
-# Remove PARALLEL in aggregates and functions
-	$(eval TMPFILE := $(shell mktemp /tmp/$(basename $0).XXXXXXXX))
-	$(SED) -e 's/PARALLEL \= [A-Z]*,/''/g' \
-		-e 's/PARALLEL [A-Z]*/''/g' $@ > $(TMPFILE)
-	mv $(TMPFILE) $@
-endif
 
 $(EXTENSION)--unpackaged--$(EXTVERSION).sql: $(EXTENSION)--$(EXTVERSION).sql util/create_from_unpackaged.sh Makefile
 	./util/create_from_unpackaged.sh $(EXTVERSION)
@@ -154,7 +146,7 @@ $(EXTENSION).control: $(EXTENSION).control.in Makefile
 	$(SED) -e 's/@@VERSION@@/$(EXTVERSION)/' $< > $@
 
 cartodb_version.sql: cartodb_version.sql.in Makefile $(GITDIR)/index
-	$(SED) -e 's/@@VERSION@@/$(EXTVERSION)/' $< > $@
+	$(SED) -e 's/@@VERSION@@/$(EXTVERSION)/' -e 's/@extschema@/cartodb/g' -e "s/@postgisschema@/public/g" $< > $@
 
 # Needed for consistent `echo` results with backslashes
 SHELL = bash

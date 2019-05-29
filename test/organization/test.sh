@@ -25,7 +25,10 @@ function clear_partial_result() {
 }
 
 function load_sql_file() {
-    ${CMD} -d ${DATABASE} -f $1
+    tmp_file=/tmp/$(basename $1)_full_schema
+    ${SED} $1 -e 's/@extschema@/cartodb/g' -e "s/@postgisschema@/public/g" > $tmp_file
+    ${CMD} -d ${DATABASE} -f $tmp_file
+    rm $tmp_file
 }
 
 
