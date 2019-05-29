@@ -249,7 +249,7 @@ function tear_down() {
     sql 'DROP ROLE cdb_testmember_2;'
 
     tear_down_database
-    DATABASE=postgres sql postgres 'DROP ROLE IF EXISTS publicuser';
+    DATABASE=postgres sql postgres 'DROP ROLE IF EXISTS cartotester';
 }
 
 
@@ -545,9 +545,9 @@ BEGIN
    IF NOT EXISTS (
       SELECT *
       FROM   pg_catalog.pg_user
-      WHERE  usename = 'publicuser') THEN
+      WHERE  usename = 'cartotester') THEN
 
-      CREATE ROLE publicuser LOGIN;
+      CREATE ROLE cartotester LOGIN;
    END IF;
 END
 \$\$;"
