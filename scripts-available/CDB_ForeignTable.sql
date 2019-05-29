@@ -63,7 +63,7 @@ BEGIN
 
     -- Bring here the remote cdb_tablemetadata
     IF NOT EXISTS ( SELECT * FROM PG_CLASS WHERE relnamespace = (SELECT oid FROM pg_namespace WHERE nspname=fdw_name) and relname='cdb_tablemetadata') THEN
-      EXECUTE FORMAT ('CREATE FOREIGN TABLE %I.cdb_tablemetadata (tabname text, updated_at timestamp with time zone) SERVER %I OPTIONS (table_name ''cdb_tablemetadata_text'', schema_name ''public'', updatable ''false'')', fdw_name, fdw_name);
+      EXECUTE FORMAT ('CREATE FOREIGN TABLE %I.cdb_tablemetadata (tabname text, updated_at timestamp with time zone) SERVER %I OPTIONS (table_name ''cdb_tablemetadata_text'', schema_name ''@extschema@'', updatable ''false'')', fdw_name, fdw_name);
     END IF;
     EXECUTE FORMAT ('GRANT SELECT ON %I.cdb_tablemetadata TO %I', fdw_name, org_role);
 
@@ -153,7 +153,7 @@ CREATE OR REPLACE FUNCTION @extschema@.CDB_QueryTables_Updated_At(query text)
 RETURNS TABLE(dbname text, schema_name text, table_name text, updated_at timestamptz)
 AS $$
     WITH query_tables AS (
-      SELECT unnest(CDB_QueryTablesText(query)) schema_table_name
+      SELECT unnest(@extschema@.CDB_QueryTablesText(query)) schema_table_name
     ), query_tables_oid AS (
       SELECT schema_table_name, schema_table_name::regclass::oid AS reloid
       FROM query_tables

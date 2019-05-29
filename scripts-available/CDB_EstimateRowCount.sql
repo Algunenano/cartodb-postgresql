@@ -22,7 +22,7 @@ DECLARE
   plan JSON;
 BEGIN
   -- Make sure statistics exist for all the tables of the query
-  PERFORM @extschema@._CDB_GenerateStats(tabname) FROM  unnest(CDB_QueryTablesText(query)) AS tabname;
+  PERFORM @extschema@._CDB_GenerateStats(tabname) FROM  unnest(@extschema@.CDB_QueryTablesText(query)) AS tabname;
 
   -- Use the query planner to obtain an estimate of the number of result rows
   EXECUTE 'EXPLAIN (FORMAT JSON) ' || query INTO STRICT plan;
