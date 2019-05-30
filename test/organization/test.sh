@@ -182,8 +182,8 @@ function setup() {
     sql "SELECT cartodb.CDB_Organization_AddAdmin('cdb_org_admin');"
     create_role_and_schema cdb_testmember_1
     create_role_and_schema cdb_testmember_2
-    sql "CREATE ROLE cartotester LOGIN;"
-    sql "GRANT CONNECT ON DATABASE \"${DATABASE}\" TO cartotester;"
+    sql "CREATE ROLE publicuser LOGIN;"
+    sql "GRANT CONNECT ON DATABASE \"${DATABASE}\" TO publicuser;"
 
     create_table cdb_testmember_1 foo
     sql cdb_testmember_1 'INSERT INTO cdb_testmember_1.foo VALUES (1), (2), (3), (4), (5);'
@@ -226,12 +226,12 @@ function tear_down() {
 
     sql "REVOKE CONNECT ON DATABASE \"${DATABASE}\" FROM cdb_testmember_1;"
     sql "REVOKE CONNECT ON DATABASE \"${DATABASE}\" FROM cdb_testmember_2;"
-    sql "REVOKE CONNECT ON DATABASE \"${DATABASE}\" FROM cartotester;"
+    sql "REVOKE CONNECT ON DATABASE \"${DATABASE}\" FROM publicuser;"
     sql "REVOKE CONNECT ON DATABASE \"${DATABASE}\" FROM cdb_org_admin;"
 
     sql 'DROP ROLE cdb_testmember_1;'
     sql 'DROP ROLE cdb_testmember_2;'
-    sql 'DROP ROLE cartotester;'
+    sql 'DROP ROLE publicuser;'
     sql 'DROP ROLE cdb_org_admin;'
 
     ${CMD} -c "DROP DATABASE ${DATABASE}"
@@ -447,29 +447,29 @@ function test_cdb_usertables_should_work_with_orgusers() {
     # create tables
     sql cdb_testmember_1 "CREATE TABLE test_perms_pub (a int)"
     sql cdb_testmember_1 "INSERT INTO test_perms_pub (a) values (1);"
-    sql cdb_testmember_1 "GRANT SELECT ON TABLE test_perms_pub TO cartotester"
+    sql cdb_testmember_1 "GRANT SELECT ON TABLE test_perms_pub TO publicuser"
 
     sql cdb_testmember_1 "CREATE TABLE test_perms_priv (a int)"
 
 
     # this is what we need to make public tables available in CDB_UserTables
-    sql postgres "grant cartotester to cdb_testmember_1;"
-    sql postgres "grant cartotester to cdb_testmember_2;"
+    sql postgres "grant publicuser to cdb_testmember_1;"
+    sql postgres "grant publicuser to cdb_testmember_2;"
 
 
     # this is required to enable select from other schema
-    sql postgres "GRANT USAGE ON SCHEMA cdb_testmember_1 TO cartotester";
+    sql postgres "GRANT USAGE ON SCHEMA cdb_testmember_1 TO publicuser";
 
 
-    # test CDB_UserTables with cartotester
+    # test CDB_UserTables with publicuser
     load_sql_file scripts-available/CDB_UserTables.sql
 
-    sql cartotester "SELECT count(*) FROM CDB_UserTables('all')" should 1
-    sql cartotester "SELECT count(*) FROM CDB_UserTables('public')" should 1
-    sql cartotester "SELECT count(*) FROM CDB_UserTables('private')" should 0
-    sql cartotester "SELECT * FROM CDB_UserTables('all')" should "test_perms_pub"
-    sql cartotester "SELECT * FROM CDB_UserTables('public')" should "test_perms_pub"
-    sql cartotester "SELECT * FROM CDB_UserTables('private')" should ""
+    sql publicuser "SELECT count(*) FROM CDB_UserTables('all')" should 1
+    sql publicuser "SELECT count(*) FROM CDB_UserTables('public')" should 1
+    sql publicuser "SELECT count(*) FROM CDB_UserTables('private')" should 0
+    sql publicuser "SELECT * FROM CDB_UserTables('all')" should "test_perms_pub"
+    sql publicuser "SELECT * FROM CDB_UserTables('public')" should "test_perms_pub"
+    sql publicuser "SELECT * FROM CDB_UserTables('private')" should ""
     # the following tests are for https://github.com/CartoDB/cartodb-postgresql/issues/98
     # cdb_testmember_2 is already owner of `bar` table
     sql cdb_testmember_2 "select string_agg(t,',') from (select cdb_usertables('all') t order by t) as s" should "bar,test_perms_pub"
