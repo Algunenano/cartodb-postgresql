@@ -544,6 +544,19 @@ function test_foreign_tables() {
     DATABASE=fdw_target load_sql_file scripts-available/CDB_QueryTables.sql
     DATABASE=fdw_target load_sql_file scripts-available/CDB_TableMetadata.sql
 
+    DATABASE=fdw_target sql postgres "DO
+\$\$
+BEGIN
+   IF NOT EXISTS (
+      SELECT *
+      FROM   pg_catalog.pg_user
+      WHERE  usename = 'publicuser') THEN
+
+      CREATE ROLE publicuser LOGIN;
+   END IF;
+END
+\$\$;"
+
     DATABASE=fdw_target sql postgres 'CREATE SCHEMA test_fdw;'
     DATABASE=fdw_target sql postgres 'CREATE TABLE test_fdw.foo (a int);'
     DATABASE=fdw_target sql postgres 'INSERT INTO test_fdw.foo (a) values (42);'
