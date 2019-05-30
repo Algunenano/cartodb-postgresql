@@ -140,6 +140,7 @@ function create_role_and_schema() {
     sql "GRANT CONNECT ON DATABASE \"${DATABASE}\" TO ${ROLE};"
     sql "CREATE SCHEMA ${ROLE} AUTHORIZATION ${ROLE};"
     sql "SELECT cartodb.CDB_Organization_Create_Member('${ROLE}')"
+    sql "ALTER ROLE ${ROLE} SET search_path TO ${ROLE},cartodb,public;"
 }
 
 
@@ -165,6 +166,7 @@ function create_table() {
 
 function setup() {
     ${CMD} -c "CREATE DATABASE ${DATABASE}"
+    ${CMD} -c "ALTER DATABASE ${DATABASE} SET search_path = public, cartodb;"
     sql "CREATE SCHEMA cartodb;"
     sql "CREATE EXTENSION plpythonu;"
     sql "GRANT USAGE ON SCHEMA cartodb TO public;"
