@@ -196,7 +196,14 @@ function setup_database() {
     sql "CREATE SCHEMA cartodb;"
     sql "GRANT USAGE ON SCHEMA cartodb TO public;"
     sql "CREATE EXTENSION postgis;"
-    sql "CREATE EXTENSION postgis_raster;"
+    sql postgres "DO
+\$\$
+BEGIN
+    IF substring(postgis_lib_version() FROM 1 FOR 1) = '3' THEN
+        CREATE EXTENSION postgis_raster;
+    END IF;
+END
+\$\$;"
     sql "CREATE EXTENSION plpythonu;"
 
     log_info "########################### BOOTSTRAP ###########################"
