@@ -163,7 +163,7 @@ legacy_regress: $(REGRESS_OLD) Makefile
 		echo '\t' >> $${of}; \
 		echo '\set QUIET off' >> $${of}; \
 		cat $${f} | \
-			$(SED) -e 's/public\./cartodb./g' >> $${of}; \
+			$(SED) -e 's/@@VERSION@@/$(EXTVERSION)/' -e 's/@extschema@/cartodb/g' -e "s/@postgisschema@/public/g" >> $${of}; \
 		exp=expected/test/$${tn}.out; \
 		echo '\set ECHO none' > $${exp}; \
 		cat test/$${tn}_expect >> $${exp}; \
