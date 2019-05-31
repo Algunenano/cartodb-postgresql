@@ -1,5 +1,5 @@
 -- Maximum supported zoom level
-CREATE OR REPLACE FUNCTION _CDB_MaxSupportedZoom()
+CREATE OR REPLACE FUNCTION @extschema@._CDB_MaxSupportedZoom()
 RETURNS int
 LANGUAGE SQL
 IMMUTABLE PARALLEL SAFE
@@ -12,7 +12,7 @@ AS $$
   SELECT 29;
 $$;
 
-CREATE OR REPLACE FUNCTION CDB_ZoomFromScale(scaleDenominator numeric)
+CREATE OR REPLACE FUNCTION @extschema@.CDB_ZoomFromScale(scaleDenominator numeric)
 RETURNS int
 LANGUAGE SQL
 IMMUTABLE PARALLEL SAFE

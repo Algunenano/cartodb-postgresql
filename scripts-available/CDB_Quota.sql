@@ -15,7 +15,7 @@ $$
 LANGUAGE 'plpgsql' VOLATILE PARALLEL UNSAFE;
 
 -- Return the estimated size of user data. Used for quota checking.
-CREATE OR REPLACE FUNCTION CDB_UserDataSize(schema_name TEXT)
+CREATE OR REPLACE FUNCTION @extschema@.CDB_UserDataSize(schema_name TEXT)
 RETURNS bigint AS
 $$
 DECLARE
@@ -60,7 +60,7 @@ LANGUAGE 'plpgsql' VOLATILE PARALLEL UNSAFE;
 
 -- Return the estimated size of user data. Used for quota checking.
 -- Implicit schema version for backwards compatibility
-CREATE OR REPLACE FUNCTION CDB_UserDataSize()
+CREATE OR REPLACE FUNCTION @extschema@.CDB_UserDataSize()
 RETURNS bigint AS
 $$
   SELECT @extschema@.CDB_UserDataSize('public');
@@ -68,7 +68,7 @@ $$
 LANGUAGE 'sql' VOLATILE PARALLEL UNSAFE;
 
 -- Triggers cannot have declared arguments: pbfact float8, qmax int8, schema_name text
-CREATE OR REPLACE FUNCTION CDB_CheckQuota()
+CREATE OR REPLACE FUNCTION @extschema@.CDB_CheckQuota()
 RETURNS trigger AS
 $$
 DECLARE
@@ -124,7 +124,7 @@ $$
 LANGUAGE 'plpgsql' VOLATILE PARALLEL UNSAFE;
 
 
-CREATE OR REPLACE FUNCTION CDB_SetUserQuotaInBytes(schema_name text, bytes int8)
+CREATE OR REPLACE FUNCTION @extschema@.CDB_SetUserQuotaInBytes(schema_name text, bytes int8)
 RETURNS int8 AS
 $$
 DECLARE
@@ -145,7 +145,7 @@ $$
 LANGUAGE 'plpgsql' VOLATILE STRICT PARALLEL UNSAFE;
 
 
-CREATE OR REPLACE FUNCTION CDB_SetUserQuotaInBytes(bytes int8)
+CREATE OR REPLACE FUNCTION @extschema@.CDB_SetUserQuotaInBytes(bytes int8)
 RETURNS int8 AS
 $$
 BEGIN

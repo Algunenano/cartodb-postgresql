@@ -1,6 +1,6 @@
 -- Read configuration parameter analysis_quota_factor, making it
 -- accessible to regular users (which don't have access to cdb_conf)
-CREATE OR REPLACE FUNCTION _CDB_GetConfAnalysisQuotaFactor()
+CREATE OR REPLACE FUNCTION @extschema@._CDB_GetConfAnalysisQuotaFactor()
 RETURNS float8 AS
 $$
 BEGIN
@@ -11,7 +11,7 @@ LANGUAGE 'plpgsql' STABLE PARALLEL SAFE SECURITY DEFINER;
 
 
 -- Get the factor (fraction of the quota) for Camshaft cached analysis tables
-CREATE OR REPLACE FUNCTION _CDB_AnalysisQuotaFactor()
+CREATE OR REPLACE FUNCTION @extschema@._CDB_AnalysisQuotaFactor()
 RETURNS float8 AS
 $$
 DECLARE
@@ -33,7 +33,7 @@ LANGUAGE 'plpgsql' STABLE PARALLEL SAFE;
 -- The name of an analysis table is passed; this, in addition to the
 -- db role that executes this function is used to determined which
 -- analysis tables will be considered.
-CREATE OR REPLACE FUNCTION CDB_CheckAnalysisQuota(table_name TEXT)
+CREATE OR REPLACE FUNCTION @extschema@.CDB_CheckAnalysisQuota(table_name TEXT)
 RETURNS void AS
 $$
 DECLARE

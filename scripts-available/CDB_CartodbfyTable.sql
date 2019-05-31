@@ -9,7 +9,7 @@
 
 -- 1) Required checks before running cartodbfication
 -- Either will pass silenty or raise an exception
-CREATE OR REPLACE FUNCTION _CDB_check_prerequisites(schema_name TEXT, reloid REGCLASS)
+CREATE OR REPLACE FUNCTION @extschema@._CDB_check_prerequisites(schema_name TEXT, reloid REGCLASS)
 RETURNS void
 AS $$
 DECLARE
@@ -29,7 +29,7 @@ END;
 $$ LANGUAGE PLPGSQL VOLATILE PARALLEL UNSAFE;
 
 -- Drop cartodb triggers (might prevent changing columns)
-CREATE OR REPLACE FUNCTION _CDB_drop_triggers(reloid REGCLASS)
+CREATE OR REPLACE FUNCTION @extschema@._CDB_drop_triggers(reloid REGCLASS)
   RETURNS void
 AS $$
 DECLARE
@@ -53,7 +53,7 @@ $$ LANGUAGE PLPGSQL VOLATILE PARALLEL UNSAFE;
 
 
 -- Cartodb_id creation & validation or renaming if invalid
-CREATE OR REPLACE FUNCTION _CDB_create_cartodb_id_column(reloid REGCLASS)
+CREATE OR REPLACE FUNCTION @extschema@._CDB_create_cartodb_id_column(reloid REGCLASS)
   RETURNS void
 AS $$
 DECLARE
@@ -200,7 +200,7 @@ $$ LANGUAGE PLPGSQL VOLATILE PARALLEL UNSAFE;
 
 -- Create all triggers
 -- NOTE: drop/create has the side-effect of re-enabling disabled triggers
-CREATE OR REPLACE FUNCTION _CDB_create_triggers(schema_name TEXT, reloid REGCLASS)
+CREATE OR REPLACE FUNCTION @extschema@._CDB_create_triggers(schema_name TEXT, reloid REGCLASS)
 RETURNS void
 AS $$
 DECLARE
@@ -239,7 +239,7 @@ $$ LANGUAGE PLPGSQL VOLATILE PARALLEL UNSAFE;
 
 -- 8.b) Create all raster triggers
 -- NOTE: drop/create has the side-effect of re-enabling disabled triggers
-CREATE OR REPLACE FUNCTION _CDB_create_raster_triggers(schema_name TEXT, reloid REGCLASS)
+CREATE OR REPLACE FUNCTION @extschema@._CDB_create_raster_triggers(schema_name TEXT, reloid REGCLASS)
   RETURNS void
 AS $$
 DECLARE
@@ -272,7 +272,7 @@ $$ LANGUAGE PLPGSQL VOLATILE PARALLEL UNSAFE;
 
 
 -- Update the_geom_webmercator
-CREATE OR REPLACE FUNCTION _CDB_update_the_geom_webmercator()
+CREATE OR REPLACE FUNCTION @extschema@._CDB_update_the_geom_webmercator()
   RETURNS trigger
 AS $$
 BEGIN
@@ -284,7 +284,7 @@ $$ LANGUAGE plpgsql VOLATILE PARALLEL UNSAFE;
 --- Trigger to update the updated_at column. No longer added by default
 --- but kept here for compatibility with old tables which still have this behavior
 --- and have it added
-CREATE OR REPLACE FUNCTION _CDB_update_updated_at()
+CREATE OR REPLACE FUNCTION @extschema@._CDB_update_updated_at()
   RETURNS TRIGGER AS $$
 BEGIN
    NEW.updated_at := now();
@@ -331,7 +331,7 @@ $$ LANGUAGE PLPGSQL STABLE PARALLEL UNSAFE;
 -- Ensure a table is a "cartodb" table (See https://github.com/CartoDB/cartodb/wiki/CartoDB-user-table)
 
 DROP FUNCTION IF EXISTS CDB_CartodbfyTable(reloid REGCLASS);
-CREATE OR REPLACE FUNCTION CDB_CartodbfyTable(reloid REGCLASS)
+CREATE OR REPLACE FUNCTION @extschema@.CDB_CartodbfyTable(reloid REGCLASS)
 RETURNS REGCLASS
 AS $$
 BEGIN
@@ -388,7 +388,7 @@ $$ LANGUAGE PLPGSQL;
 -- -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 
-CREATE OR REPLACE FUNCTION _CDB_Columns(OUT pkey TEXT, OUT geomcol TEXT, OUT mercgeomcol TEXT)
+CREATE OR REPLACE FUNCTION @extschema@._CDB_Columns(OUT pkey TEXT, OUT geomcol TEXT, OUT mercgeomcol TEXT)
 RETURNS record
 AS $$
 BEGIN
@@ -401,7 +401,7 @@ END;
 $$ LANGUAGE 'plpgsql' IMMUTABLE PARALLEL SAFE;
 
 
-CREATE OR REPLACE FUNCTION _CDB_Error(message TEXT, funcname TEXT DEFAULT '_CDB_Error')
+CREATE OR REPLACE FUNCTION @extschema@._CDB_Error(message TEXT, funcname TEXT DEFAULT '_CDB_Error')
 RETURNS void
 AS $$
 BEGIN
@@ -412,7 +412,7 @@ END;
 $$ LANGUAGE 'plpgsql' VOLATILE PARALLEL SAFE;
 
 
-CREATE OR REPLACE FUNCTION _CDB_SQL(sql TEXT, funcname TEXT DEFAULT '_CDB_SQL')
+CREATE OR REPLACE FUNCTION @extschema@._CDB_SQL(sql TEXT, funcname TEXT DEFAULT '_CDB_SQL')
 RETURNS void
 AS $$
 BEGIN
@@ -432,7 +432,7 @@ $$ LANGUAGE 'plpgsql' VOLATILE PARALLEL UNSAFE;
 -- aware. Find a unique relation name in the given schema, starting from the
 -- template given. If the template is already unique, just return it;
 -- otherwise, append an increasing integer until you find a unique variant.
-CREATE OR REPLACE FUNCTION _CDB_Unique_Relation_Name(schemaname TEXT, relationname TEXT)
+CREATE OR REPLACE FUNCTION @extschema@._CDB_Unique_Relation_Name(schemaname TEXT, relationname TEXT)
 RETURNS TEXT
 AS $$
 DECLARE
@@ -451,7 +451,7 @@ $$ LANGUAGE 'plpgsql' VOLATILE PARALLEL SAFE;
 -- aware. Find a unique column name in the given relation, starting from the
 -- column name given. If the column name is already unique, just return it;
 -- otherwise, append an increasing integer until you find a unique variant.
-CREATE OR REPLACE FUNCTION _CDB_Unique_Column_Name(reloid REGCLASS, columnname TEXT)
+CREATE OR REPLACE FUNCTION @extschema@._CDB_Unique_Column_Name(reloid REGCLASS, columnname TEXT)
 RETURNS TEXT
 AS $$
 DECLARE
@@ -471,7 +471,7 @@ $$ LANGUAGE 'plpgsql' VOLATILE PARALLEL SAFE;
 -- we can no-op on the table copy and just ensure that the
 -- indexes and triggers are in place
 DROP FUNCTION IF EXISTS _CDB_Has_Usable_Primary_ID(reloid REGCLASS);
-CREATE OR REPLACE FUNCTION _CDB_Has_Usable_Primary_ID(reloid REGCLASS)
+CREATE OR REPLACE FUNCTION @extschema@._CDB_Has_Usable_Primary_ID(reloid REGCLASS)
   RETURNS BOOLEAN
 AS $$
 DECLARE
@@ -586,7 +586,7 @@ END;
 $$ LANGUAGE 'plpgsql' VOLATILE PARALLEL UNSAFE;
 
 
-CREATE OR REPLACE FUNCTION _CDB_Has_Usable_PK_Sequence(reloid REGCLASS)
+CREATE OR REPLACE FUNCTION @extschema@._CDB_Has_Usable_PK_Sequence(reloid REGCLASS)
 RETURNS BOOLEAN
 AS $$
 DECLARE
@@ -607,7 +607,7 @@ $$ LANGUAGE 'plpgsql' STABLE PARALLEL SAFE;
 
 -- Return a set of columns that can be candidates to be the_geom[webmercator]
 -- with some extra information to analyze them.
-CREATE OR REPLACE FUNCTION _cdb_geom_candidate_columns(reloid REGCLASS)
+CREATE OR REPLACE FUNCTION @extschema@._cdb_geom_candidate_columns(reloid REGCLASS)
 RETURNS TABLE (attname name, srid integer, typname name, desired_attname text, desired_srid integer)
 AS $$
 DECLARE
@@ -638,7 +638,7 @@ DO $$
 BEGIN
   SET search_path TO @extschema@;
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = '_cdb_has_usable_geom_record') THEN
-    CREATE TYPE _cdb_has_usable_geom_record
+    CREATE TYPE @extschema@._cdb_has_usable_geom_record
       AS (has_usable_geoms boolean,
         text_geom_column boolean,
         text_geom_column_name text,
@@ -651,8 +651,8 @@ BEGIN
 END$$;
 
 DROP FUNCTION IF EXISTS _CDB_Has_Usable_Geom(REGCLASS);
-CREATE OR REPLACE FUNCTION _CDB_Has_Usable_Geom(reloid REGCLASS)
-RETURNS _cdb_has_usable_geom_record
+CREATE OR REPLACE FUNCTION @extschema@._CDB_Has_Usable_Geom(reloid REGCLASS)
+RETURNS @extschema@._cdb_has_usable_geom_record
 AS $$
 DECLARE
   r1 RECORD;
@@ -785,7 +785,7 @@ $$ LANGUAGE 'plpgsql' VOLATILE PARALLEL UNSAFE;
 -- a "good" one, and the same for the geometry columns. If all the required
 -- columns are in place already, it no-ops and just renames the table to
 -- the destination if necessary.
-CREATE OR REPLACE FUNCTION _CDB_Rewrite_Table(reloid REGCLASS, destschema TEXT DEFAULT NULL)
+CREATE OR REPLACE FUNCTION @extschema@._CDB_Rewrite_Table(reloid REGCLASS, destschema TEXT DEFAULT NULL)
 RETURNS BOOLEAN
 AS $$
 DECLARE
@@ -1150,7 +1150,7 @@ $$ LANGUAGE 'plpgsql' VOLATILE PARALLEL UNSAFE;
 -- Assumes the table already has the right metadata columns
 -- (primary key and two geometry columns) and adds primary key
 -- and geometry indexes if necessary.
-CREATE OR REPLACE FUNCTION _CDB_Add_Indexes(reloid REGCLASS)
+CREATE OR REPLACE FUNCTION @extschema@._CDB_Add_Indexes(reloid REGCLASS)
   RETURNS BOOLEAN
 AS $$
 DECLARE
@@ -1248,8 +1248,8 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql' VOLATILE PARALLEL UNSAFE;
 
-DROP FUNCTION IF EXISTS CDB_CartodbfyTable(destschema TEXT, reloid REGCLASS);
-CREATE OR REPLACE FUNCTION CDB_CartodbfyTable(destschema TEXT, reloid REGCLASS)
+DROP FUNCTION IF EXISTS @extschema@.CDB_CartodbfyTable(destschema TEXT, reloid REGCLASS);
+CREATE OR REPLACE FUNCTION @extschema@.CDB_CartodbfyTable(destschema TEXT, reloid REGCLASS)
 RETURNS REGCLASS
 AS $$
 DECLARE

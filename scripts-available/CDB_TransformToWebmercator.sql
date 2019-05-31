@@ -5,7 +5,7 @@
 -- for web mercator by "clipping" anything outside to the valid
 -- range.
 --
-CREATE OR REPLACE FUNCTION CDB_TransformToWebmercator(geom @postgisschema@.geometry)
+CREATE OR REPLACE FUNCTION @extschema@.CDB_TransformToWebmercator(geom @postgisschema@.geometry)
 RETURNS @postgisschema@.geometry
 AS
 $$

@@ -1,5 +1,5 @@
 -- Return an Hexagon with given center and side (or maximal radius)
-CREATE OR REPLACE FUNCTION CDB_MakeHexagon(center GEOMETRY, radius FLOAT8)
+CREATE OR REPLACE FUNCTION @extschema@.CDB_MakeHexagon(center GEOMETRY, radius FLOAT8)
 RETURNS GEOMETRY
 AS $$
   SELECT @postgisschema@.ST_MakePolygon(@postgisschema@.ST_MakeLine(geom))
@@ -12,7 +12,7 @@ $$ LANGUAGE 'sql' IMMUTABLE STRICT PARALLEL SAFE;
 
 
 -- In older versions of the extension, CDB_HexagonGrid had a different signature
-DROP FUNCTION IF EXISTS cartodb.CDB_HexagonGrid(GEOMETRY, FLOAT8, GEOMETRY);
+DROP FUNCTION IF EXISTS @extschema@.CDB_HexagonGrid(GEOMETRY, FLOAT8, GEOMETRY);
 
 --
 -- Fill given extent with an hexagonal coverage
@@ -35,7 +35,7 @@ DROP FUNCTION IF EXISTS cartodb.CDB_HexagonGrid(GEOMETRY, FLOAT8, GEOMETRY);
 --                 and exception will occur.
 ----
 -- DROP FUNCTION IF EXISTS CDB_HexagonGrid(ext GEOMETRY, side FLOAT8);
-CREATE OR REPLACE FUNCTION CDB_HexagonGrid(ext GEOMETRY, side FLOAT8, origin GEOMETRY DEFAULT NULL, maxcells INTEGER DEFAULT 512*512)
+CREATE OR REPLACE FUNCTION @extschema@.CDB_HexagonGrid(ext GEOMETRY, side FLOAT8, origin GEOMETRY DEFAULT NULL, maxcells INTEGER DEFAULT 512*512)
 RETURNS SETOF GEOMETRY
 AS $$
 DECLARE

@@ -1,7 +1,7 @@
 -- Great circle point-to-point routes, based on:
 --   http://blog.cartodb.com/jets-and-datelines/
 --
-CREATE OR REPLACE FUNCTION CDB_GreatCircle(start_point @postgisschema@.geometry, end_point @postgisschema@.geometry, max_segment_length NUMERIC DEFAULT 100000)
+CREATE OR REPLACE FUNCTION @extschema@.CDB_GreatCircle(start_point @postgisschema@.geometry, end_point @postgisschema@.geometry, max_segment_length NUMERIC DEFAULT 100000)
 RETURNS @postgisschema@.geometry AS $$
 DECLARE
   line @postgisschema@.geometry;
