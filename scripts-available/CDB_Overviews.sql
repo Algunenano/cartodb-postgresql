@@ -10,7 +10,7 @@ DECLARE
     schema_name TEXT;
     table_name TEXT;
 BEGIN
-    SELECT * FROM _cdb_split_table_name(reloid) INTO schema_name, table_name;
+    SELECT * FROM @extschema@._cdb_split_table_name(reloid) INTO schema_name, table_name;
     FOR row IN
         SELECT * FROM @extschema@.CDB_Overviews(reloid)
     LOOP
@@ -36,7 +36,7 @@ AS $$
     schema_name TEXT;
     base_table_name TEXT;
   BEGIN
-    SELECT * FROM @extschema@_cdb_split_table_name(reloid) INTO schema_name, base_table_name;
+    SELECT * FROM @extschema@._cdb_split_table_name(reloid) INTO schema_name, base_table_name;
     RETURN QUERY SELECT
       reloid AS base_table,
       @extschema@._CDB_OverviewTableZ(table_name) AS z,
@@ -99,7 +99,7 @@ AS $$
           EXECUTE format('ANALYZE %1$s', reloid);
 
           -- We check the geometry type in case the error is due to empty geometries
-          IF @postgisschema@._CDB_GeometryTypes(reloid) IS NULL THEN
+          IF @extschema@._CDB_GeometryTypes(reloid) IS NULL THEN
             RETURN NULL;
           END IF;
 
@@ -150,17 +150,17 @@ AS $$
       base AS (
         SELECT
           least(
-           -floor(log(2, (greatest(@extschema@.ST_XMax(ext.g)-@extschema@.ST_XMin(ext.g), @extschema@.ST_YMax(ext.g)-@extschema@.ST_YMin(ext.g))/(%4$s*%5$s))::numeric)),
+           -floor(log(2, (greatest(@postgisschema@.ST_XMax(ext.g)-@postgisschema@.ST_XMin(ext.g), @postgisschema@.ST_YMax(ext.g)-@postgisschema@.ST_YMin(ext.g))/(%4$s*%5$s))::numeric)),
            @extschema@._CDB_MaxOverviewLevel()+1
           )::integer z
         FROM ext
       ),
       lim AS (
         SELECT
-          FLOOR((@extschema@.ST_XMin(ext.g)+@extschema@.CDB_XYZ_Resolution(0)*128)/(@extschema@.CDB_XYZ_Resolution(base.z)*256))::integer x0,
-          FLOOR((@extschema@.ST_XMax(ext.g)+@extschema@.CDB_XYZ_Resolution(0)*128)/(@extschema@.CDB_XYZ_Resolution(base.z)*256))::integer x1,
-          FLOOR((@extschema@.CDB_XYZ_Resolution(0)*128-@extschema@.ST_YMin(ext.g))/(@extschema@.CDB_XYZ_Resolution(base.z)*256))::integer y1,
-          FLOOR((@extschema@.CDB_XYZ_Resolution(0)*128-@extschema@.ST_YMax(ext.g))/(@extschema@.CDB_XYZ_Resolution(base.z)*256))::integer y0
+          FLOOR((@postgisschema@.ST_XMin(ext.g)+@extschema@.CDB_XYZ_Resolution(0)*128)/(@extschema@.CDB_XYZ_Resolution(base.z)*256))::integer x0,
+          FLOOR((@postgisschema@.ST_XMax(ext.g)+@extschema@.CDB_XYZ_Resolution(0)*128)/(@extschema@.CDB_XYZ_Resolution(base.z)*256))::integer x1,
+          FLOOR((@extschema@.CDB_XYZ_Resolution(0)*128-@postgisschema@.ST_YMin(ext.g))/(@extschema@.CDB_XYZ_Resolution(base.z)*256))::integer y1,
+          FLOOR((@extschema@.CDB_XYZ_Resolution(0)*128-@postgisschema@.ST_YMax(ext.g))/(@extschema@.CDB_XYZ_Resolution(base.z)*256))::integer y0
         FROM ext, base
       ),
       seed AS (
@@ -179,7 +179,7 @@ AS $$
       FROM t, base, (VALUES (0, 0), (0, 1), (1, 1), (1, 0)) AS c(xx, yy)
       WHERE t.e > %2$s AND t.z < least(base.z + %3$s, _CDB_MaxZoomLevel())
     )
-    SELECT MAX(e/@extschema@.ST_Area(@extschema@.CDB_XYZ_Extent(x,y,z))) FROM t where e > 0;
+    SELECT MAX(e/@postgisschema@.ST_Area(@extschema@.CDB_XYZ_Extent(x,y,z))) FROM t where e > 0;
   ', reloid::text, min_features, nz, n, c, reloid::oid)
   INTO fd;
   RETURN fd;
