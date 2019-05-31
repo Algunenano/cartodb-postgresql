@@ -698,7 +698,7 @@ BEGIN
         RAISE DEBUG 'CDB(_CDB_Has_Usable_Geom): %', Format('column ''%s'' is a text column', r1.attname);
 
         BEGIN
-          sql := Format('SELECT Max(@postgisschema@.ST_SRID(%I::geometry)) AS srid FROM %I', r1.attname, reloid::text);
+          sql := Format('SELECT Max(@postgisschema@.ST_SRID(%I::@postgisschema@.geometry)) AS srid FROM %I', r1.attname, reloid::text);
           EXECUTE sql INTO srid;
           -- This gets skipped if EXCEPTION happens
           -- Let the table writer know we need to convert from text

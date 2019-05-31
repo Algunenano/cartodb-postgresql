@@ -77,10 +77,10 @@ $$ LANGUAGE SQL STABLE PARALLEL SAFE;
 --   reloid: oid of the input table.
 -- Return value A box2d extent in 3857.
 CREATE OR REPLACE FUNCTION _cdb_estimated_extent(reloid REGCLASS)
-RETURNS box2d
+RETURNS @postgisschema@.box2d
 AS $$
   DECLARE
-    ext box2d;
+    ext @postgisschema@.box2d;
     ext_query text;
     table_id record;
   BEGIN

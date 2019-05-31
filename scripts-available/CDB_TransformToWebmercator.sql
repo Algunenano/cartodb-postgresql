@@ -5,16 +5,16 @@
 -- for web mercator by "clipping" anything outside to the valid
 -- range.
 --
-CREATE OR REPLACE FUNCTION CDB_TransformToWebmercator(geom geometry)
-RETURNS geometry
+CREATE OR REPLACE FUNCTION CDB_TransformToWebmercator(geom @postgisschema@.geometry)
+RETURNS @postgisschema@.geometry
 AS
 $$
 DECLARE
-  valid_extent GEOMETRY;
-  latlon_input GEOMETRY;
-  clipped_input GEOMETRY;
-  to_webmercator GEOMETRY;
-  ret GEOMETRY;
+  valid_extent @postgisschema@.GEOMETRY;
+  latlon_input @postgisschema@.GEOMETRY;
+  clipped_input @postgisschema@.GEOMETRY;
+  to_webmercator @postgisschema@.GEOMETRY;
+  ret @postgisschema@.GEOMETRY;
 BEGIN
 
   IF @postgisschema@.ST_Srid(geom) = 3857 THEN
@@ -72,7 +72,7 @@ BEGIN
   -- Finally we convert EMPTY to NULL
   -- See https://github.com/Vizzuality/cartodb/issues/706
   -- And retain "multi" status
-  ret := CASE WHEN @postgisschema@.ST_IsEmpty(to_webmercator) THEN NULL::geometry
+  ret := CASE WHEN @postgisschema@.ST_IsEmpty(to_webmercator) THEN NULL::@postgisschema@.geometry
       WHEN @postgisschema@.GeometryType(geom) LIKE 'MULTI%' THEN @postgisschema@.ST_Multi(to_webmercator)
       ELSE to_webmercator
   END;
