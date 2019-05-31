@@ -178,18 +178,9 @@ function truncate_table() {
 function setup() {
     ${CMD} -c "CREATE DATABASE ${DATABASE}"
     ${CMD} -c "ALTER DATABASE ${DATABASE} SET search_path = public, cartodb;"
-    sql "CREATE SCHEMA cartodb;"
-    sql "CREATE EXTENSION plpythonu;"
-    sql "GRANT USAGE ON SCHEMA cartodb TO public;"
+    sql "CREATE EXTENSION cartodb CASCADE;"
+    ${CMD} -c "ALTER DATABASE ${DATABASE} SET search_path = public, cartodb;"
 
-    log_info "########################### BOOTSTRAP ###########################"
-    load_sql_file scripts-available/CDB_Organizations.sql
-    load_sql_file scripts-available/CDB_Conf.sql
-    load_sql_file scripts-available/CDB_Groups.sql
-    load_sql_file scripts-available/CDB_Groups_API.sql
-    load_sql_file scripts-available/CDB_QueryStatements.sql
-    load_sql_file scripts-available/CDB_QueryTables.sql
-    load_sql_file scripts-available/CDB_UserTables.sql
 
     log_info "############################# SETUP #############################"
     create_role_and_schema cdb_org_admin

@@ -192,9 +192,6 @@ function drop_raster_table() {
 
 function setup_database() {
     ${CMD} -c "CREATE DATABASE ${DATABASE}"
-    ${CMD} -c "ALTER DATABASE ${DATABASE} SET search_path = public, cartodb;"
-    sql "CREATE SCHEMA cartodb;"
-    sql "GRANT USAGE ON SCHEMA cartodb TO public;"
     sql "CREATE EXTENSION postgis;"
     sql postgres "DO
 \$\$
@@ -204,18 +201,8 @@ BEGIN
     END IF;
 END
 \$\$;"
-    sql "CREATE EXTENSION plpythonu;"
-
-    log_info "########################### BOOTSTRAP ###########################"
-    load_sql_file scripts-available/CDB_Organizations.sql
-    load_sql_file scripts-available/CDB_OverviewsSupport.sql
-    load_sql_file scripts-available/CDB_AnalysisSupport.sql
-
-    load_sql_file_schema scripts-available/CDB_Quota.sql cartodb
-    load_sql_file_schema scripts-available/CDB_TableMetadata.sql cartodb
-    load_sql_file_schema scripts-available/CDB_ColumnNames.sql cartodb
-    load_sql_file_schema scripts-available/CDB_ColumnType.sql cartodb
-    load_sql_file_schema scripts-available/CDB_AnalysisCatalog.sql cartodb
+    sql "CREATE EXTENSION cartodb CASCADE;"
+    ${CMD} -c "ALTER DATABASE ${DATABASE} SET search_path = public, cartodb;"
     
 }
 
@@ -488,9 +475,6 @@ function test_cdb_column_type() {
 }
 
 function test_cdb_querytables_schema_and_table_names_with_dots() {
-    load_sql_file scripts-available/CDB_QueryStatements.sql
-    load_sql_file scripts-available/CDB_QueryTables.sql
-
     sql postgres 'CREATE SCHEMA "foo.bar";'
     sql postgres 'CREATE TABLE "foo.bar"."c.a.r.t.o.d.b" (a int);'
     sql postgres 'INSERT INTO "foo.bar"."c.a.r.t.o.d.b" values (1);'
@@ -504,9 +488,6 @@ function test_cdb_querytables_schema_and_table_names_with_dots() {
 }
 
 function test_cdb_querytables_table_name_with_dots() {
-    load_sql_file scripts-available/CDB_QueryStatements.sql
-    load_sql_file scripts-available/CDB_QueryTables.sql
-
     sql postgres 'CREATE TABLE "w.a.d.u.s" (a int);';
 
     sql postgres 'SELECT CDB_QueryTablesText($q$select * from "w.a.d.u.s"$q$);' should '{"public.\"w.a.d.u.s\""}'
@@ -516,9 +497,6 @@ function test_cdb_querytables_table_name_with_dots() {
 }
 
 function test_cdb_querytables_happy_cases() {
-    load_sql_file scripts-available/CDB_QueryStatements.sql
-    load_sql_file scripts-available/CDB_QueryTables.sql
-
     sql postgres 'CREATE TABLE wadus (a int);';
     sql postgres 'CREATE TABLE "FOOBAR" (a int);';
     sql postgres 'CREATE SCHEMA foo;'
@@ -541,16 +519,7 @@ function test_cdb_querytables_happy_cases() {
 
 function test_foreign_tables() {
 
-    load_sql_file scripts-available/CDB_QueryStatements.sql
-    load_sql_file scripts-available/CDB_QueryTables.sql
-    load_sql_file scripts-available/CDB_Conf.sql
-    load_sql_file scripts-available/CDB_ForeignTable.sql
-
     DATABASE=fdw_target setup_database
-    DATABASE=fdw_target load_sql_file scripts-available/CDB_QueryStatements.sql
-    DATABASE=fdw_target load_sql_file scripts-available/CDB_QueryTables.sql
-    DATABASE=fdw_target load_sql_file scripts-available/CDB_TableMetadata.sql
-
     DATABASE=fdw_target sql postgres "DO
 \$\$
 BEGIN
