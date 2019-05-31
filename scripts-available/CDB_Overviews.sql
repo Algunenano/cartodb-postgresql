@@ -2,7 +2,7 @@
 -- Scope: public
 -- Parameters:
 --   reloid: oid of the table.
-CREATE OR REPLACE FUNCTION @extschema@.CDB_DropOverviews(reloid REGCLASS)
+CREATE OR REPLACE FUNCTION CDB_DropOverviews(reloid REGCLASS)
 RETURNS void
 AS $$
 DECLARE
@@ -56,7 +56,7 @@ $$ LANGUAGE PLPGSQL STABLE PARALLEL RESTRICTED;
 -- z level of the overview and overview table oid, ordered by z.
 -- Note: CDB_Overviews can be applied to the result of CDB_QueryTablesText
 -- to obtain the overviews applicable to a query.
-CREATE OR REPLACE FUNCTION @extschema@.CDB_Overviews(tables regclass[])
+CREATE OR REPLACE FUNCTION CDB_Overviews(tables regclass[])
 RETURNS TABLE(base_table REGCLASS, z integer, overview_table REGCLASS)
 AS $$
   SELECT
@@ -76,7 +76,7 @@ $$ LANGUAGE SQL STABLE PARALLEL SAFE;
 -- Parameters
 --   reloid: oid of the input table.
 -- Return value A box2d extent in 3857.
-CREATE OR REPLACE FUNCTION @extschema@._cdb_estimated_extent(reloid REGCLASS)
+CREATE OR REPLACE FUNCTION _cdb_estimated_extent(reloid REGCLASS)
 RETURNS box2d
 AS $$
   DECLARE
@@ -116,7 +116,7 @@ $$ LANGUAGE PLPGSQL VOLATILE PARALLEL UNSAFE;
 --   reloid: oid of the input table. It must be a cartodbfy'ed table.
 --   nz: number of zoom levels to consider from z0 upward.
 -- Return value: feature density (num_features / webmercator_squared_meters).
-CREATE OR REPLACE FUNCTION @extschema@._CDB_Feature_Density(reloid REGCLASS, nz integer)
+CREATE OR REPLACE FUNCTION _CDB_Feature_Density(reloid REGCLASS, nz integer)
 RETURNS FLOAT8
 AS $$
   DECLARE
@@ -193,7 +193,7 @@ $$ LANGUAGE PLPGSQL VOLATILE PARALLEL UNSAFE;
 -- Parameters:
 --   reloid: oid of the input table. It must be a cartodbfy'ed table.
 -- Return value: Z level as an integer
-CREATE OR REPLACE FUNCTION @extschema@._CDB_Feature_Density_Ref_Z_Strategy(reloid REGCLASS, tolerance_px FLOAT8 DEFAULT NULL)
+CREATE OR REPLACE FUNCTION _CDB_Feature_Density_Ref_Z_Strategy(reloid REGCLASS, tolerance_px FLOAT8 DEFAULT NULL)
 RETURNS INTEGER
 AS $$
   DECLARE
@@ -231,7 +231,7 @@ $$ LANGUAGE PLPGSQL VOLATILE PARALLEL UNSAFE;
 --   overview_z Z level of the overview to be named, must be smaller than ref_z
 -- Return value: the name to be used for the overview. The name is always
 -- unqualified (does not include a schema name).
-CREATE OR REPLACE FUNCTION @extschema@._CDB_Overview_Name(ref REGCLASS, ref_z INTEGER, overview_z INTEGER)
+CREATE OR REPLACE FUNCTION _CDB_Overview_Name(ref REGCLASS, ref_z INTEGER, overview_z INTEGER)
 RETURNS TEXT
 AS $$
   DECLARE
@@ -254,7 +254,7 @@ $$ LANGUAGE PLPGSQL IMMUTABLE PARALLEL SAFE;
 --   ref_z Z level assigned to the original table
 --   overview_z Z level of the overview to be generated, must be smaller than ref_z
 -- Return value: Name of the generated overview table
-CREATE OR REPLACE FUNCTION @extschema@._CDB_Sampling_Reduce_Strategy(reloid REGCLASS, ref_z INTEGER, overview_z INTEGER, tolerance_px FLOAT8 DEFAULT NULL, has_overview_created BOOLEAN DEFAULT FALSE)
+CREATE OR REPLACE FUNCTION _CDB_Sampling_Reduce_Strategy(reloid REGCLASS, ref_z INTEGER, overview_z INTEGER, tolerance_px FLOAT8 DEFAULT NULL, has_overview_created BOOLEAN DEFAULT FALSE)
 RETURNS REGCLASS
 AS $$
   DECLARE
@@ -320,7 +320,7 @@ $$ LANGUAGE PLPGSQL VOLATILE PARALLEL UNSAFE;
 -- overview table to match those of the dataset. It will only perform any change
 -- if the overview table belgons to the same scheme as the dataset and it
 -- matches the scheme naming for overview tables.
-CREATE OR REPLACE FUNCTION @extschema@._CDB_Register_Overview(dataset REGCLASS, overview_table REGCLASS, overview_z INTEGER)
+CREATE OR REPLACE FUNCTION _CDB_Register_Overview(dataset REGCLASS, overview_table REGCLASS, overview_z INTEGER)
 RETURNS VOID
 AS $$
   DECLARE
@@ -371,7 +371,7 @@ $$ LANGUAGE PLPGSQL VOLATILE PARALLEL UNSAFE SECURITY DEFINER;
 -- Parameters
 --   reloid: oid of the input table. It must be a cartodbfy'ed table.
 -- Return value: set of attribute names
-CREATE OR REPLACE FUNCTION @extschema@._CDB_Aggregable_Attributes(reloid REGCLASS)
+CREATE OR REPLACE FUNCTION _CDB_Aggregable_Attributes(reloid REGCLASS)
 RETURNS SETOF information_schema.sql_identifier
 AS $$
   SELECT c FROM @extschema@.CDB_ColumnNames(reloid) c, @extschema@._CDB_Columns() cdb
@@ -386,7 +386,7 @@ $$ LANGUAGE SQL STABLE PARALLEL SAFE;
 -- Parameters
 --   reloid: oid of the input table. It must be a cartodbfy'ed table.
 -- Return value: SQL subexpression as text
-CREATE OR REPLACE FUNCTION @extschema@._CDB_Aggregable_Attributes_Expression(reloid REGCLASS)
+CREATE OR REPLACE FUNCTION _CDB_Aggregable_Attributes_Expression(reloid REGCLASS)
 RETURNS TEXT
 AS $$
 DECLARE
@@ -401,7 +401,7 @@ END
 $$ LANGUAGE PLPGSQL STABLE PARALLEL SAFE;
 
 -- Check if a column of a table is of an unlimited-length text type
-CREATE OR REPLACE FUNCTION @extschema@._cdb_unlimited_text_column(reloid REGCLASS, col_name TEXT)
+CREATE OR REPLACE FUNCTION _cdb_unlimited_text_column(reloid REGCLASS, col_name TEXT)
 RETURNS BOOLEAN
 AS $$
   SELECT EXISTS (
@@ -445,7 +445,7 @@ BEGIN
 END;
 $$ LANGUAGE PLPGSQL VOLATILE PARALLEL RESTRICTED;
 
-CREATE OR REPLACE FUNCTION @extschema@._cdb_mode_of_array(anyarray)
+CREATE OR REPLACE FUNCTION _cdb_mode_of_array(anyarray)
   RETURNS anyelement AS
 $$
     SELECT a
@@ -456,8 +456,8 @@ $$
 $$
 LANGUAGE SQL IMMUTABLE PARALLEL SAFE;
 
-DROP AGGREGATE IF EXISTS @extschema@._cdb_mode(anyelement);
-CREATE AGGREGATE @extschema@._cdb_mode(anyelement) (
+DROP AGGREGATE IF EXISTS _cdb_mode(anyelement);
+CREATE AGGREGATE _cdb_mode(anyelement) (
   SFUNC=array_append,
   STYPE=anyarray,
   FINALFUNC=@extschema@._cdb_mode_of_array,
@@ -473,7 +473,7 @@ CREATE AGGREGATE @extschema@._cdb_mode(anyelement) (
 --   table_alias: (optional) table qualifier for the column to be aggregated
 -- Return SQL subexpression as text with aggregated attribute aliased
 -- with its original name.
-CREATE OR REPLACE FUNCTION @extschema@._CDB_Attribute_Aggregation_Expression(reloid REGCLASS, column_name TEXT, table_alias TEXT DEFAULT '')
+CREATE OR REPLACE FUNCTION _CDB_Attribute_Aggregation_Expression(reloid REGCLASS, column_name TEXT, table_alias TEXT DEFAULT '')
 RETURNS TEXT
 AS $$
 DECLARE
@@ -542,7 +542,7 @@ $$ LANGUAGE PLPGSQL VOLATILE PARALLEL RESTRICTED;
 --   reloid: oid of the input table. It must be a cartodbfy'ed table.
 --   table_alias: (optional) table qualifier for the columns to be aggregated
 -- Return value: SQL subexpression as text
-CREATE OR REPLACE FUNCTION @extschema@._CDB_Aggregated_Attributes_Expression(reloid REGCLASS, table_alias TEXT DEFAULT '')
+CREATE OR REPLACE FUNCTION _CDB_Aggregated_Attributes_Expression(reloid REGCLASS, table_alias TEXT DEFAULT '')
 RETURNS TEXT
 AS $$
 DECLARE
@@ -562,7 +562,7 @@ $$ LANGUAGE PLPGSQL VOLATILE PARALLEL RESTRICTED;
 -- Parameters
 --   reloid: oid of the input table. It must be a cartodbfy'ed table.
 -- Return value: array of geometry type names
-CREATE OR REPLACE FUNCTION @extschema@._CDB_GeometryTypes(reloid REGCLASS)
+CREATE OR REPLACE FUNCTION _CDB_GeometryTypes(reloid REGCLASS)
 RETURNS TEXT[]
 AS $$
 DECLARE
@@ -589,7 +589,7 @@ $$ LANGUAGE PLPGSQL STABLE PARALLEL SAFE;
 --   ref_z Z level assigned to the original table
 --   overview_z Z level of the overview to be generated, must be smaller than ref_z
 -- Return value: Name of the generated overview table
-CREATE OR REPLACE FUNCTION @extschema@._CDB_GridCluster_Reduce_Strategy(reloid REGCLASS, ref_z INTEGER, overview_z INTEGER, grid_px FLOAT8 DEFAULT NULL, has_overview_created BOOLEAN DEFAULT FALSE)
+CREATE OR REPLACE FUNCTION _CDB_GridCluster_Reduce_Strategy(reloid REGCLASS, ref_z INTEGER, overview_z INTEGER, grid_px FLOAT8 DEFAULT NULL, has_overview_created BOOLEAN DEFAULT FALSE)
 RETURNS REGCLASS
 AS $$
   DECLARE
@@ -716,7 +716,7 @@ AS $$
 $$ LANGUAGE PLPGSQL VOLATILE PARALLEL UNSAFE;
 
 -- This strategy places the aggregation of each cluster at the centroid of the cluster members.
-CREATE OR REPLACE FUNCTION @extschema@._CDB_GridClusterCentroid_Reduce_Strategy(reloid REGCLASS, ref_z INTEGER, overview_z INTEGER, grid_px FLOAT8 DEFAULT NULL, has_overview_created BOOLEAN DEFAULT FALSE)
+CREATE OR REPLACE FUNCTION _CDB_GridClusterCentroid_Reduce_Strategy(reloid REGCLASS, ref_z INTEGER, overview_z INTEGER, grid_px FLOAT8 DEFAULT NULL, has_overview_created BOOLEAN DEFAULT FALSE)
 RETURNS REGCLASS
 AS $$
   DECLARE
@@ -844,7 +844,7 @@ AS $$
 $$ LANGUAGE PLPGSQL VOLATILE PARALLEL UNSAFE;
 
 -- This strategy places the aggregation of each cluster at the position of one of the cluster members.
-CREATE OR REPLACE FUNCTION @extschema@._CDB_GridClusterSample_Reduce_Strategy(reloid REGCLASS, ref_z INTEGER, overview_z INTEGER, grid_px FLOAT8 DEFAULT NULL, has_overview_created BOOLEAN DEFAULT FALSE)
+CREATE OR REPLACE FUNCTION _CDB_GridClusterSample_Reduce_Strategy(reloid REGCLASS, ref_z INTEGER, overview_z INTEGER, grid_px FLOAT8 DEFAULT NULL, has_overview_created BOOLEAN DEFAULT FALSE)
 RETURNS REGCLASS
 AS $$
   DECLARE
@@ -980,7 +980,7 @@ $$ LANGUAGE PLPGSQL VOLATILE PARALLEL UNSAFE;
 --                    created by the strategy must have the same columns
 --                    as the base table and in the same order.
 -- Return value: Array with the names of the generated overview tables
-CREATE OR REPLACE FUNCTION @extschema@.CDB_CreateOverviews(reloid REGCLASS, refscale_strategy regproc DEFAULT '@extschema@._CDB_Feature_Density_Ref_Z_Strategy(REGCLASS,FLOAT8)'::regprocedure, reduce_strategy regproc DEFAULT '@extschema@._CDB_GridCluster_Reduce_Strategy(REGCLASS,INTEGER,INTEGER,FLOAT8,BOOLEAN)'::regprocedure)
+CREATE OR REPLACE FUNCTION CDB_CreateOverviews(reloid REGCLASS, refscale_strategy regproc DEFAULT '@extschema@._CDB_Feature_Density_Ref_Z_Strategy(REGCLASS,FLOAT8)'::regprocedure, reduce_strategy regproc DEFAULT '@extschema@._CDB_GridCluster_Reduce_Strategy(REGCLASS,INTEGER,INTEGER,FLOAT8,BOOLEAN)'::regprocedure)
 RETURNS text[]
 AS $$
 DECLARE
@@ -1061,10 +1061,10 @@ $$ LANGUAGE PLPGSQL VOLATILE PARALLEL UNSAFE;
 -- Here are some older signatures of these functions, no longer in use.
 -- They must be droped here, after the (new) definition of the function `CDB_CreateOverviews`
 -- because that function used to contain references to them in the default argument values.
-DROP FUNCTION IF EXISTS @extschema@._CDB_Feature_Density_Ref_Z_Strategy(REGCLASS);
-DROP FUNCTION IF EXISTS @extschema@._CDB_GridCluster_Reduce_Strategy(REGCLASS,INTEGER,INTEGER);
-DROP FUNCTION IF EXISTS @extschema@._CDB_GridCluster_Reduce_Strategy(REGCLASS,INTEGER,INTEGER,FLOAT8);
-DROP FUNCTION IF EXISTS @extschema@._CDB_GridClusterCentroid_Reduce_Strategy(REGCLASS, INTEGER, INTEGER, FLOAT8);
-DROP FUNCTION IF EXISTS @extschema@._CDB_GridClusterSample_Reduce_Strategy(REGCLASS, INTEGER, INTEGER, FLOAT8);
-DROP FUNCTION IF EXISTS @extschema@._CDB_Sampling_Reduce_Strategy(REGCLASS,INTEGER,INTEGER);
-DROP FUNCTION IF EXISTS @extschema@._CDB_Sampling_Reduce_Strategy(REGCLASS,INTEGER,INTEGER,FLOAT8);
+DROP FUNCTION IF EXISTS _CDB_Feature_Density_Ref_Z_Strategy(REGCLASS);
+DROP FUNCTION IF EXISTS _CDB_GridCluster_Reduce_Strategy(REGCLASS,INTEGER,INTEGER);
+DROP FUNCTION IF EXISTS _CDB_GridCluster_Reduce_Strategy(REGCLASS,INTEGER,INTEGER,FLOAT8);
+DROP FUNCTION IF EXISTS _CDB_GridClusterCentroid_Reduce_Strategy(REGCLASS, INTEGER, INTEGER, FLOAT8);
+DROP FUNCTION IF EXISTS _CDB_GridClusterSample_Reduce_Strategy(REGCLASS, INTEGER, INTEGER, FLOAT8);
+DROP FUNCTION IF EXISTS _CDB_Sampling_Reduce_Strategy(REGCLASS,INTEGER,INTEGER);
+DROP FUNCTION IF EXISTS _CDB_Sampling_Reduce_Strategy(REGCLASS,INTEGER,INTEGER,FLOAT8);

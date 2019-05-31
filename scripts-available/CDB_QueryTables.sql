@@ -2,7 +2,7 @@
 --
 -- Requires PostgreSQL 9.x+
 --
-CREATE OR REPLACE FUNCTION @extschema@.CDB_QueryTablesText(query text)
+CREATE OR REPLACE FUNCTION CDB_QueryTablesText(query text)
 RETURNS text[]
 AS $$
 DECLARE
@@ -66,7 +66,7 @@ $$ LANGUAGE 'plpgsql' VOLATILE STRICT PARALLEL UNSAFE;
 
 -- Keep CDB_QueryTables with same signature for backwards compatibility.
 -- It should probably be removed in the future.
-CREATE OR REPLACE FUNCTION @extschema@.CDB_QueryTables(query text)
+CREATE OR REPLACE FUNCTION CDB_QueryTables(query text)
 RETURNS name[]
 AS $$
 BEGIN

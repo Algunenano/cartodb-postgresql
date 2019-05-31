@@ -1,7 +1,7 @@
 -- {
 -- Return pixel resolution at the given zoom level
 -- }{
-CREATE OR REPLACE FUNCTION @extschema@.CDB_XYZ_Resolution(z INTEGER)
+CREATE OR REPLACE FUNCTION CDB_XYZ_Resolution(z INTEGER)
 RETURNS FLOAT8
 AS $$
   -- circumference divided by 256 is z0 resolution, then divide by 2^z
@@ -15,7 +15,7 @@ $$ LANGUAGE SQL IMMUTABLE PARALLEL SAFE STRICT;
 -- SRID of the returned polygon is forceably 3857
 --
 -- }{
-CREATE OR REPLACE FUNCTION @extschema@.CDB_XYZ_Extent(x INTEGER, y INTEGER, z INTEGER)
+CREATE OR REPLACE FUNCTION CDB_XYZ_Extent(x INTEGER, y INTEGER, z INTEGER)
 RETURNS GEOMETRY
 AS $$
 DECLARE

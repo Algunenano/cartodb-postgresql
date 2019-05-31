@@ -1,5 +1,5 @@
 -- Internal function to generate stats for a table if they don't exist
-CREATE OR REPLACE FUNCTION @extschema@._CDB_GenerateStats(reloid REGCLASS)
+CREATE OR REPLACE FUNCTION _CDB_GenerateStats(reloid REGCLASS)
 RETURNS VOID
 AS $$
 DECLARE
@@ -15,7 +15,7 @@ END
 $$ LANGUAGE 'plpgsql' VOLATILE STRICT PARALLEL UNSAFE SECURITY DEFINER;
 
 -- Return a row count estimate of the result of a query using statistics
-CREATE OR REPLACE FUNCTION @extschema@.CDB_EstimateRowCount(query text)
+CREATE OR REPLACE FUNCTION CDB_EstimateRowCount(query text)
 RETURNS Numeric
 AS $$
 DECLARE

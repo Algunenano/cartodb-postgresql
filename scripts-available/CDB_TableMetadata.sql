@@ -27,7 +27,7 @@ CREATE OR REPLACE VIEW @extschema@.CDB_TableMetadata_Text AS
 --
 -- NOTE: _never_ attach to CDB_TableMetadata ...
 --
-CREATE OR REPLACE FUNCTION @extschema@.CDB_TableMetadata_Trigger()
+CREATE OR REPLACE FUNCTION CDB_TableMetadata_Trigger()
 RETURNS trigger AS
 $$
 BEGIN
@@ -62,7 +62,7 @@ LANGUAGE plpgsql VOLATILE PARALLEL UNSAFE SECURITY DEFINER;
 -- Trigger invalidating varnish whenever CDB_TableMetadata
 -- record change.
 --
-CREATE OR REPLACE FUNCTION @extschema@._CDB_TableMetadata_Updated()
+CREATE OR REPLACE FUNCTION _CDB_TableMetadata_Updated()
 RETURNS trigger AS
 $$
 DECLARE

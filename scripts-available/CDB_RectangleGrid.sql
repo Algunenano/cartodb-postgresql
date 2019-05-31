@@ -1,5 +1,5 @@
 -- In older versions of the extension, CDB_RectangleGrid had a different signature
-DROP FUNCTION IF EXISTS @extschema@.CDB_RectangleGrid(GEOMETRY, FLOAT8, FLOAT8, GEOMETRY);
+DROP FUNCTION IF EXISTS cartodb.CDB_RectangleGrid(GEOMETRY, FLOAT8, FLOAT8, GEOMETRY);
 
 --
 -- Fill given extent with a rectangular coverage
@@ -22,7 +22,7 @@ DROP FUNCTION IF EXISTS @extschema@.CDB_RectangleGrid(GEOMETRY, FLOAT8, FLOAT8, 
 --                 if the grid requires more cells to cover the extent
 --                 and exception will occur.
 --
-CREATE OR REPLACE FUNCTION @extschema@.CDB_RectangleGrid(ext GEOMETRY, width FLOAT8, height FLOAT8, origin GEOMETRY DEFAULT NULL, maxcells INTEGER DEFAULT 512*512)
+CREATE OR REPLACE FUNCTION CDB_RectangleGrid(ext GEOMETRY, width FLOAT8, height FLOAT8, origin GEOMETRY DEFAULT NULL, maxcells INTEGER DEFAULT 512*512)
 RETURNS SETOF GEOMETRY
 AS $$
 DECLARE

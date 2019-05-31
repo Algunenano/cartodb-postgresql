@@ -5,8 +5,8 @@
 --
 -- Currently accepted permissions are: 'public', 'private' or 'all'
 --
-DROP FUNCTION IF EXISTS @extschema@.CDB_UserTables(text);
-CREATE OR REPLACE FUNCTION @extschema@.CDB_UserTables(perm text DEFAULT 'all')
+DROP FUNCTION IF EXISTS CDB_UserTables(text);
+CREATE OR REPLACE FUNCTION CDB_UserTables(perm text DEFAULT 'all')
 RETURNS SETOF name
 AS $$
 
@@ -25,4 +25,4 @@ $$ LANGUAGE 'sql' STABLE PARALLEL SAFE;
 
 -- This is to migrate from pre-0.2.0 version
 -- See http://github.com/CartoDB/cartodb-postgresql/issues/36
-GRANT EXECUTE ON FUNCTION @extschema@.CDB_UserTables(text) TO public;
+GRANT EXECUTE ON FUNCTION CDB_UserTables(text) TO public;
