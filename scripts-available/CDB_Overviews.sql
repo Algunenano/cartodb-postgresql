@@ -36,7 +36,7 @@ AS $$
     schema_name TEXT;
     base_table_name TEXT;
   BEGIN
-    SELECT * FROM _cdb_split_table_name(reloid) INTO schema_name, base_table_name;
+    SELECT * FROM @extschema@_cdb_split_table_name(reloid) INTO schema_name, base_table_name;
     RETURN QUERY SELECT
       reloid AS base_table,
       @extschema@._CDB_OverviewTableZ(table_name) AS z,
@@ -135,7 +135,7 @@ AS $$
   -- the area of tiles at level Z: c*c*power(2, -2*z)
   -- with c = CDB_XYZ_Resolution(-8) (earth circumference)
   min_features = '500';
-  SELECT @postgisschema@.CDB_XYZ_Resolution(-8) INTO c;
+  SELECT @extschema@.CDB_XYZ_Resolution(-8) INTO c;
 
   -- We first compute a set of *seed* tiles, of the minimum Z level, z0, such that
   -- they cover the extent of the table and we have at least n of them in each

@@ -24,14 +24,6 @@ function clear_partial_result() {
     PARTIALOK=0
 }
 
-function load_sql_file() {
-    tmp_file=/tmp/$(basename $1)_full_schema
-    ${SED} $1 -e 's/@extschema@/cartodb/g' -e "s/@postgisschema@/public/g" > $tmp_file
-    ${CMD} -d ${DATABASE} -f $tmp_file
-    rm $tmp_file
-}
-
-
 function sql() {
     local ROLE
     local QUERY
