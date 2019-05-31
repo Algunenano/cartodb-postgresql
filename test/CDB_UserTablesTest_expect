@@ -1,4 +1,6 @@
-CREATE ROLE
+SET
+DO
+SET
 CREATE TABLE
 CREATE TABLE
 GRANT
@@ -9,10 +11,9 @@ all|prv
 all|pub
 public|pub
 private|prv
-You are now connected to database "contrib_regression" as user "cartotester".
-all_cartotester|pub
-public_cartotester|pub
+You are now connected to database "contrib_regression" as user "publicuser".
+all_publicuser|pub
+public_publicuser|pub
 You are now connected to database "contrib_regression" as user "postgres".
 DROP TABLE
 DROP TABLE
-DROP ROLE
