@@ -100,18 +100,21 @@ DECLARE
     schema_name name := @extschema@.__CDB_FS_Generate_Schema_Name(internal_server_name, schema_name);
     role_name name := @extschema@.__CDB_FS_Generate_Server_Role_Name(internal_server_name);
 BEGIN
-    -- By changing the local role to the owner of the server we have an
-    -- easy way to check for permissions and keep all objects under the same owner
-    BEGIN
-        EXECUTE 'SET LOCAL ROLE ' || quote_ident(role_name);
-    EXCEPTION
-    WHEN invalid_parameter_value THEN
-        RAISE EXCEPTION 'Server "%" does not exist',
-                        @extschema@.__CDB_FS_Extract_Server_Name(internal_server_name);
-    WHEN OTHERS THEN
-        RAISE EXCEPTION 'Not enough permissions to access the server "%"',
-                        @extschema@.__CDB_FS_Extract_Server_Name(internal_server_name);
-    END;
+
+    IF session_user != role_name THEN
+        -- By changing the local role to the owner of the server we have an
+        -- easy way to check for permissions and keep all objects under the same owner
+        BEGIN
+            EXECUTE 'SET LOCAL ROLE ' || quote_ident(role_name);
+        EXCEPTION
+        WHEN invalid_parameter_value THEN
+            RAISE EXCEPTION 'Server "%" does not exist',
+                            @extschema@.__CDB_FS_Extract_Server_Name(internal_server_name);
+        WHEN OTHERS THEN
+            RAISE EXCEPTION 'Not enough permissions to access the server "%"',
+                            @extschema@.__CDB_FS_Extract_Server_Name(internal_server_name);
+        END;
+    END IF;
 
     IF NOT EXISTS (SELECT oid FROM pg_namespace WHERE nspname = schema_name) THEN
         EXECUTE 'CREATE SCHEMA ' || quote_ident(schema_name) || ' AUTHORIZATION ' || quote_ident(role_name);
