@@ -128,7 +128,7 @@ RETURNS TABLE(
     )
 AS $$
 DECLARE
-    local_schema name := @extschema@.__CDB_FS_Create_Schema(server_internal, remote_schema);
+    local_schema name := @extschema@.__CDB_FS_Generate_Schema_Name(server_internal, remote_schema);
 BEGIN
     RETURN QUERY SELECT
         true as registered,
@@ -316,9 +316,13 @@ RETURNS void
 AS $$
 DECLARE
     server_internal name := @extschema@.__CDB_FS_Generate_Server_Name(input_name => server, check_existence => false);
-    local_schema name := @extschema@.__CDB_FS_Create_Schema(server_internal, remote_schema);
+    local_schema name := @extschema@.__CDB_FS_Generate_Schema_Name(server_internal, remote_schema);
 BEGIN
-    EXECUTE FORMAT ('DROP FOREIGN TABLE %I.%I CASCADE;', local_schema, remote_table);
+    BEGIN
+        EXECUTE FORMAT ('DROP FOREIGN TABLE %I.%I CASCADE;', local_schema, remote_table);
+    EXCEPTION WHEN OTHERS THEN
+        RAISE EXCEPTION 'Not enough permissions to access the server "%"', server;
+    END;
 END
 $$
 LANGUAGE PLPGSQL VOLATILE PARALLEL UNSAFE;
