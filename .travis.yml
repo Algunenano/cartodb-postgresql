@@ -6,7 +6,6 @@ env:
     - PGUSER=postgres
     - PGDATABASE=postgres
     - PGOPTIONS='-c client_min_messages=NOTICE'
-    - PGPORT=5432
 
 jobs:
   include:
@@ -22,7 +21,8 @@ jobs:
       dist: bionic
 
 script:
-  - pg_lsclusters  | tail -n +2 | while read -r line ; do pg_dropcluster --stop $(echo $line | awk '{print $1 " " $2}'); done
+  - sudo service postgresql stop;
+  - sudo apt-get remove postgresql* -y
   - sudo apt-get install -y --allow-unauthenticated --no-install-recommends --no-install-suggests postgresql-$POSTGRESQL_VERSION postgresql-client-$POSTGRESQL_VERSION postgresql-server-dev-$POSTGRESQL_VERSION postgresql-common
   - if [[ $POSTGRESQL_VERSION == '9.6' ]]; then sudo apt-get install -y postgresql-contrib-9.6; fi;
   - sudo apt-get install -y --allow-unauthenticated postgresql-$POSTGRESQL_VERSION-postgis-$POSTGIS_VERSION postgresql-$POSTGRESQL_VERSION-postgis-$POSTGIS_VERSION-scripts postgis
@@ -32,6 +32,7 @@ script:
   - sudo rm -rf /etc/postgresql/$POSTGRESQL_VERSION /var/lib/postgresql/$POSTGRESQL_VERSION
   - sudo pg_createcluster -u postgres $POSTGRESQL_VERSION main -- --auth-local trust --auth-host password
   - sudo /etc/init.d/postgresql start $POSTGRESQL_VERSION || sudo journalctl -xe
+  - export PGPORT=$(pg_lsclusters | grep $POSTGRESQL_VERSION | awk '{print $3}')
   - make
   - sudo make install
   - make installcheck
@@ -40,5 +41,4 @@ after_failure:
   - pg_lsclusters
   - cat regression.out
   - cat regression.diffs
-  - ls -alR /usr/lib/postgresql/
-  - psql --version
+  - echo $PGPORT
