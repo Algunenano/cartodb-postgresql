@@ -41,3 +41,5 @@ after_failure:
   - pg_lsclusters
   - cat regression.out
   - cat regression.diffs
+  - which psql
+  - psql --version
