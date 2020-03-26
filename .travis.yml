@@ -22,6 +22,7 @@ jobs:
 
 script:
   - sudo service postgresql stop;
+  - pg_lsclusters  | tail -n +2 | while read -r line ; do pg_dropcluster --stop $(echo $line | awk '{print $1 $2}'); done
   - sudo apt-get remove postgresql* -y
   - sudo apt-get install -y --allow-unauthenticated --no-install-recommends --no-install-suggests postgresql-$POSTGRESQL_VERSION postgresql-client-$POSTGRESQL_VERSION postgresql-server-dev-$POSTGRESQL_VERSION postgresql-common
   - if [[ $POSTGRESQL_VERSION == '9.6' ]]; then sudo apt-get install -y postgresql-contrib-9.6; fi;
@@ -42,3 +43,4 @@ after_failure:
   - cat regression.out
   - cat regression.diffs
   - echo $PGPORT
+  - ls -alR /usr/lib/postgresql/
